@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Ranking System | Stable Merge Sort</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -moz-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Main Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 25px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #276749 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4299e1 0%, #2b6cb0 100%);
+        }
+
+        /* Subjects List */
+        .subjects-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .subject-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .subject-tag button {
+            background: rgba(255,255,255,0.3);
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 12px;
+        }
+
+        /* Marks Grid */
+        .marks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .mark-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mark-field label {
+            flex: 1;
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .mark-field input {
+            width: 80px;
+            text-align: center;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        tr:hover {
+            background: #f7f7f7;
+        }
+
+        .rank-1 {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            font-weight: bold;
+        }
+
+        .rank-2 {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+        }
+
+        .rank-3 {
+            background: linear-gradient(135deg, #cd7f32 0%, #ed8936 100%);
+            color: white;
+        }
+
+        .grade-a, .grade-b, .grade-c, .grade-d {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .grade-a { background: #48bb78; color: white; }
+        .grade-b { background: #4299e1; color: white; }
+        .grade-c { background: #ed8936; color: white; }
+        .grade-d { background: #f56565; color: white; }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .stats-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎓 Student Ranking System</h1>
+            <p>Stable Merge Sort Algorithm | Multi-Subject Support</p>
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-number" id="totalStudents">0</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="totalSubjects">0</div>
+                    <div class="stat-label">Total Subjects</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="avgPercentage">0%</div>
+                    <div class="stat-label">Average %</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Left Panel - Input Forms -->
+            <div>
+                <!-- Subject Configuration -->
+                <div class="card">
+                    <div class="card-title">📚 Configure Subjects</div>
+                    <div class="form-group">
+                        <input type="text" id="subjectName" placeholder="Enter subject name (e.g., Mathematics)">
+                    </div>
+                    <button onclick="addSubject()">➕ Add Subject</button>
+                    <div id="subjectsList" class="subjects-list"></div>
+                </div>
+
+                <!-- Student Form -->
+                <div class="card">
+                    <div class="card-title">👨‍🎓 Add/Edit Student</div>
+                    <div class="form-group">
+                        <label>Roll Number:</label>
+                        <input type="number" id="rollNo" placeholder="Unique roll number">
+                    </div>
+                    <div class="form-group">
+                        <label>Student Name:</label>
+                        <input type="text" id="studentName" placeholder="Full name">
+                    </div>
+                    <div id="marksContainer"></div>
+                    <div class="action-buttons">
+                        <button onclick="addStudent()" class="btn-success">➕ Add Student</button>
+                        <button onclick="clearForm()" class="btn-danger">🗑️ Clear</button>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="card">
+                    <div class="card-title">⚙️ Actions</div>
+                    <div class="action-buttons">
+                        <button onclick="loadSampleData()" class="btn-info">📋 Sample Data</button>
+                        <button onclick="calculateRanks()" class="btn-warning">🔄 Calculate Ranks</button>
+                        <button onclick="exportData()" class="btn-success">📥 Export</button>
+                        <button onclick="resetAll()" class="btn-danger">🗑️ Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Rankings -->
+            <div class="card">
+                <div class="card-title">🏆 Student Rankings (Stable Merge Sort)</div>
+                <div class="table-container">
+                    <table id="rankingTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th>Total</th>
+                                <th>%</th>
+                                <th>Grade</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rankingBody">
+                            <tr><td colspan="7" class="empty-state">No students added yet. Add subjects and students!</td</tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // ==================== GLOBAL VARIABLES ====================
+        let subjects = [];
+        let students = [];
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? '#f56565' : '#48bb78';
+            toast.className = 'toast show';
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Calculate total marks and percentage
+        function calculateMetrics(student) {
+            const totalMarks = Object.values(student.marks).reduce((sum, mark) => sum + mark, 0);
+            const maxMarks = subjects.length * 100;
+            const percentage = maxMarks > 0 ? (totalMarks / maxMarks) * 100 : 0;
+            return {
+                ...student,
+                totalMarks: totalMarks,
+                percentage: parseFloat(percentage.toFixed(2))
+            };
+        }
+
+        // Calculate grade
+        function getGrade(percentage) {
+            if (percentage >= 90) return 'A';
+            if (percentage >= 80) return 'B';
+            if (percentage >= 70) return 'C';
+            if (percentage >= 60) return 'D';
+            if (percentage >= 50) return 'E';
+            return 'F';
+        }
+
+        function getGradeClass(grade) {
+            const classes = { 'A': 'grade-a', 'B': 'grade-b', 'C': 'grade-c', 'D': 'grade-d', 'E': 'grade-d', 'F': 'grade-d' };
+            return classes[grade] || 'grade-d';
+        }
+
+        // ==================== STABLE MERGE SORT ====================
+        function mergeSortStable(arr) {
+            if (arr.length <= 1) return arr;
+            
+            const mid = Math.floor(arr.length / 2);
+            const left = mergeSortStable(arr.slice(0, mid));
+            const right = mergeSortStable(arr.slice(mid));
+            
+            return mergeStable(left, right);
+        }
+
+        function mergeStable(left, right) {
+            let result = [];
+            let i = 0, j = 0;
+            
+            while (i < left.length && j < right.length) {
+                if (left[i].totalMarks > right[j].totalMarks) {
+                    result.push(left[i]);
+                    i++;
+                } else if (left[i].totalMarks < right[j].totalMarks) {
+                    result.push(right[j]);
+                    j++;
+                } else {
+                    // STABLE: When equal, take from left first
+                    result.push(left[i]);
+                    i++;
+                }
+            }
+            
+            return result.concat(left.slice(i)).concat(right.slice(j));
+        }
+
+        // ==================== SUBJECT MANAGEMENT ====================
+        function addSubject() {
+            const subjectName = document.getElementById('subjectName').value.trim();
+            
+            if (!subjectName) {
+                showToast('Please enter a subject name!', 'error');
+                return;
+            }
+            
+            if (subjects.includes(subjectName)) {
+                showToast('Subject already exists!', 'error');
+                return;
+            }
+            
+            subjects.push(subjectName);
+            document.getElementById('subjectName').value = '';
+            
+            updateSubjectsDisplay();
+            updateMarksForm();
+            saveToLocalStorage();
+            
+            showToast(`Subject "${subjectName}" added!`, 'success');
+        }
+
+        function removeSubject(index) {
+            const subjectName = subjects[index];
+            subjects.splice(index, 1);
+            
+            // Remove marks for this subject from all students
+            students.forEach(student => {
+                delete student.marks[subjectName];
+                const updated = calculateMetrics(student);
+                Object.assign(student, updated);
+            });
+            
+            updateSubjectsDisplay();
+            updateMarksForm();
+            displayRankings();
+            saveToLocalStorage();
+            
+            showToast(`Subject "${subjectName}" removed`, 'info');
+        }
+
+        function updateSubjectsDisplay() {
+            const container = document.getElementById('subjectsList');
+            document.getElementById('totalSubjects').textContent = subjects.length;
+            
+            if (subjects.length === 0) {
+                container.innerHTML = '<div style="color: #999; padding: 10px;">No subjects added. Add your first subject!</div>';
+                return;
+            }
+            
+            container.innerHTML = subjects.map((subject, index) => `
+                <div class="subject-tag">
+                    📚 ${subject}
+                    <button onclick="removeSubject(${index})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function updateMarksForm() {
+            const container = document.getElementById('marksContainer');
+            
+            if (subjects.length === 0) {
+                container.innerHTML = '<div style="color: #999; padding: 10px;">⚠️ Please add subjects first!</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <label style="margin-bottom: 10px; display: block;">📝 Marks (0-100):</label>
+                <div class="marks-grid">
+                    ${subjects.map(subject => `
+                        <div class="mark-field">
+                            <label>${subject}:</label>
+                            <input type="number" id="mark_${subject.replace(/\s/g, '_')}" min="0" max="100" value="0">
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // ==================== STUDENT MANAGEMENT ====================
+        function addStudent() {
+            const rollNo = parseInt(document.getElementById('rollNo').value);
+            const name = document.getElementById('studentName').value.trim();
+            
+            // Validation
+            if (!rollNo || isNaN(rollNo)) {
+                showToast('Please enter a valid roll number!', 'error');
+                return;
+            }
+            
+            if (!name) {
+                showToast('Please enter student name!', 'error');
+                return;
+            }
+            
+            if (subjects.length === 0) {
+                showToast('Please add subjects first!', 'error');
+                return;
+            }
+            
+            if (students.some(s => s.rollNo === rollNo)) {
+                showToast(`Roll number ${rollNo} already exists!`, 'error');
+                return;
+            }
+            
+            // Collect marks
+            const marks = {};
+            for (let subject of subjects) {
+                const inputId = `mark_${subject.replace(/\s/g, '_')}`;
+                const input = document.getElementById(inputId);
+                if (input) {
+                    let mark = parseInt(input.value);
+                    if (isNaN(mark) || mark < 0 || mark > 100) {
+                        showToast(`Invalid marks for ${subject}! Must be 0-100.`, 'error');
+                        return;
+                    }
+                    marks[subject] = mark;
+                }
+            }
+            
+            // Create and add student
+            const newStudent = {
+                id: Date.now(),
+                rollNo: rollNo,
+                name: name,
+                marks: marks,
+                createdAt: new Date().toISOString()
+            };
+            
+            const calculatedStudent = calculateMetrics(newStudent);
+            students.push(calculatedStudent);
+            
+            // Clear form
+            document.getElementById('rollNo').value = '';
+            document.getElementById('studentName').value = '';
+            for (let subject of subjects) {
+                const inputId = `mark_${subject.replace(/\s/g, '_')}`;
+                const input = document.getElementById(inputId);
+                if (input) input.value = 0;
+            }
+            
+            saveToLocalStorage();
+            displayRankings();
+            updateStats();
+            
+            showToast(`Student "${name}" added successfully!`, 'success');
+        }
+
+        function editStudent(rollNo) {
+            const student = students.find(s => s.rollNo === rollNo);
+            if (!student) return;
+            
+            document.getElementById('rollNo').value = student.rollNo;
+            document.getElementById('studentName').value = student.name;
+            
+            for (let subject of subjects) {
+                const inputId = `mark_${subject.replace(/\s/g, '_')}`;
+                const input = document.getElementById(inputId);
+                if (input && student.marks[subject] !== undefined) {
+                    input.value = student.marks[subject];
+                }
+            }
+            
+            // Remove old student (will be re-added on save)
+            students = students.filter(s => s.rollNo !== rollNo);
+            
+            showToast(`Editing ${student.name}. Update marks and click Add Student.`, 'info');
+        }
+
+        function deleteStudent(rollNo) {
+            if (confirm('Delete this student?')) {
+                const student = students.find(s => s.rollNo === rollNo);
+                students = students.filter(s => s.rollNo !== rollNo);
+                saveToLocalStorage();
+                displayRankings();
+                updateStats();
+                showToast(`Student "${student.name}" deleted`, 'info');
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('rollNo').value = '';
+            document.getElementById('studentName').value = '';
+            for (let subject of subjects) {
+                const inputId = `mark_${subject.replace(/\s/g, '_')}`;
+                const input = document.getElementById(inputId);
+                if (input) input.value = 0;
+            }
+        }
+
+        // ==================== RANKING DISPLAY ====================
+        function calculateRanks() {
+            if (students.length === 0) {
+                showToast('No students to rank!', 'error');
+                return;
+            }
+            displayRankings();
+            showToast('Ranks calculated using Stable Merge Sort!', 'success');
+        }
+
+        function displayRankings() {
+            if (students.length === 0) {
+                document.getElementById('rankingBody').innerHTML = '<tr><td colspan="7" class="empty-state">No students added yet. Add subjects and students!</td></tr>';
+                return;
+            }
+            
+            // Sort using stable merge sort
+            const sorted = mergeSortStable([...students]);
+            
+            // Assign ranks
+            if (sorted.length > 0) {
+                sorted[0].rank = 1;
+                for (let i = 1; i < sorted.length; i++) {
+                    if (sorted[i].totalMarks === sorted[i-1].totalMarks) {
+                        sorted[i].rank = sorted[i-1].rank;
+                    } else {
+                        sorted[i].rank = i + 1;
+                    }
+                }
+            }
+            
+            // Display
+            const tbody = document.getElementById('rankingBody');
+            tbody.innerHTML = sorted.map(student => {
+                const grade = getGrade(student.percentage);
+                const gradeClass = getGradeClass(grade);
+                const rankClass = student.rank === 1 ? 'rank-1' : (student.rank === 2 ? 'rank-2' : (student.rank === 3 ? 'rank-3' : ''));
+                
+                return `
+                    <tr>
+                        <td class="${rankClass}"><strong>${student.rank}</strong></td>
+                        <td>${student.rollNo}</td>
+                        <td><strong>${escapeHtml(student.name)}</strong></td>
+                        <td>${student.totalMarks}</td>
+                        <td>${student.percentage}%</td>
+                        <td><span class="${gradeClass}">${grade}</span></td>
+                        <td>
+                            <button onclick="editStudent(${student.rollNo})" style="background:#4299e1; padding:5px 10px; margin-right:5px;">✏️</button>
+                            <button onclick="deleteStudent(${student.rollNo})" style="background:#f56565; padding:5px 10px;">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('totalSubjects').textContent = subjects.length;
+            
+            if (students.length > 0) {
+                const avg = students.reduce((sum, s) => sum + s.percentage, 0) / students.length;
+                document.getElementById('avgPercentage').textContent = avg.toFixed(1) + '%';
+            } else {
+                document.getElementById('avgPercentage').textContent = '0%';
+            }
+        }
+
+        // ==================== DATA MANAGEMENT ====================
+        function loadSampleData() {
+            if (students.length > 0 && !confirm('Load sample data? This will replace current data.')) {
+                return;
+            }
+            
+            subjects = ['Mathematics', 'Physics', 'Chemistry', 'English'];
+            
+            const sampleStudents = [
+                { rollNo: 101, name: 'Zeeshan Ali', marks: { 'Mathematics': 92, 'Physics': 88, 'Chemistry': 85, 'English': 95 } },
+                { rollNo: 102, name: 'Ahmed', marks: { 'Mathematics': 78, 'Physics': 85, 'Chemistry': 90, 'English': 82 } },
+                { rollNo: 103, name: 'M.Ali', marks: { 'Mathematics': 96, 'Physics': 94, 'Chemistry': 92, 'English': 98 } },
+                { rollNo: 104, name: 'Hamza Majeed', marks: { 'Mathematics': 85, 'Physics': 82, 'Chemistry': 88, 'English': 90 } },
+                { rollNo: 105, name: 'Waseem Akram', marks: { 'Mathematics': 75, 'Physics': 78, 'Chemistry': 80, 'English': 85 } }
+            ];
+            
+            students = sampleStudents.map(s => calculateMetrics({
+                id: Date.now() + Math.random(),
+                ...s,
+                createdAt: new Date().toISOString()
+            }));
+            
+            updateSubjectsDisplay();
+            updateMarksForm();
+            displayRankings();
+            updateStats();
+            saveToLocalStorage();
+            
+            showToast('Sample data loaded!', 'success');
+        }
+
+        function exportData() {
+            if (students.length === 0 && subjects.length === 0) {
+                showToast('No data to export!', 'error');
+                return;
+            }
+            
+            const data = {
+                exportDate: new Date().toISOString(),
+                subjects: subjects,
+                students: students.map(s => ({
+                    rollNo: s.rollNo,
+                    name: s.name,
+                    marks: s.marks,
+                    totalMarks: s.totalMarks,
+                    percentage: s.percentage
+                }))
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `student_data_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Data exported!', 'success');
+        }
+
+        function resetAll() {
+            if (confirm('Reset ALL data? This cannot be undone!')) {
+                subjects = [];
+                students = [];
+                updateSubjectsDisplay();
+                updateMarksForm();
+                displayRankings();
+                updateStats();
+                saveToLocalStorage();
+                showToast('All data reset!', 'info');
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('studentRankingSystem', JSON.stringify({
+                subjects: subjects,
+                students: students,
+                lastSaved: new Date().toISOString()
+            }));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('studentRankingSystem');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    subjects = data.subjects || [];
+                    students = (data.students || []).map(s => calculateMetrics(s));
+                    updateSubjectsDisplay();
+                    updateMarksForm();
+                    displayRankings();
+                    updateStats();
+                } catch(e) {
+                    console.log('Error loading data');
+                }
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Make functions globally accessible
+        window.addSubject = addSubject;
+        window.removeSubject = removeSubject;
+        window.addStudent = addStudent;
+        window.editStudent = editStudent;
+        window.deleteStudent = deleteStudent;
+        window.clearForm = clearForm;
+        window.calculateRanks = calculateRanks;
+        window.loadSampleData = loadSampleData;
+        window.exportData = exportData;
+        window.resetAll = resetAll;
+
+        // Initialize
+        loadFromLocalStorage();
+        
+        // If no subjects, add defaults
+        if (subjects.length === 0) {
+            subjects = ['Mathematics', 'Science', 'English'];
+            updateSubjectsDisplay();
+            updateMarksForm();
+            saveToLocalStorage();
+        }
+        
+        updateStats();
+    </script>
+</body>
+</html>
